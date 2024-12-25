@@ -33,28 +33,12 @@ public class WebSocketHandler extends TextWebSocketHandler {
             throws Exception {
         MessagePayload messagePayload =
                 objectMapper.readValue(message.getPayload(), MessagePayload.class);
+            
+        System.out.println(messagePayload.type());
 
         switch (messagePayload.type()) {
-            case "offer": {
+            case "start": {
                 handleOffer(session, messagePayload);
-                break;
-            }
-            case "answer": {
-                // Get recipient session from sessions
-                WebSocketSession recipientSession =
-                        sessions.get(messagePayload.recipientSessionId());
-
-                if (recipientSession == null) {
-                    // If the recipientSession is null that means recipient is disconnected
-                    // Put the current session id to the queue session id
-                    handleOffer(recipientSession, messagePayload);
-                } else {
-                    MessagePayload newMessagePayload = new MessagePayload(messagePayload.type(),
-                            messagePayload.data(), null, session.getId());
-                    TextMessage newMessage =
-                            new TextMessage(objectMapper.writeValueAsString(newMessagePayload));
-                    recipientSession.sendMessage(newMessage);
-                }
                 break;
             }
             default: {
